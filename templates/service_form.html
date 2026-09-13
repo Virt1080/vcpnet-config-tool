@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{% if service %}Edit Service{% else %}Add Service{% endif %} - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">{% if service %}Edit Service{% else %}Add Service{% endif %}</h1>
+<form method="post" action="{% if service %}{{ url_for(action, service_id=service.id) }}{% else %}{{ url_for(action) }}{% endif %}">
+    <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" value="{{ service.name if service else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="service_type" class="col-sm-2 col-form-label">Type</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="service_type" name="service_type" required>
+                <option value="">-- Select Type --</option>
+                <option value="proxmox" {% if service and service.service_type == 'proxmox' %}selected{% endif %}>Proxmox Host</option>
+                <option value="router" {% if service and service.service_type == 'router' %}selected{% endif %}>Router</option>
+                <option value="switch" {% if service and service.service_type == 'switch' %}selected{% endif %}>Switch</option>
+                <option value="web_service" {% if service and service.service_type == 'web_service' %}selected{% endif %}>Web Service</option>
+                <option value="lxc" {% if service and service.service_type == 'lxc' %}selected{% endif %}>LXC Container</option>
+                <option value="pi_hole" {% if service and service.service_type == 'pi_hole' %}selected{% endif %}>Pi-hole</option>
+                <option value="openwrt" {% if service and service.service_type == 'openwrt' %}selected{% endif %}>OpenWrt</option>
+                <option value="vpn" {% if service and service.service_type == 'vpn' %}selected{% endif %}>VPN (Tailscale/Headscale)</option>
+                <option value="proxy" {% if service and service.service_type == 'proxy' %}selected{% endif %}>Proxy Server</option>
+                <option value="sso" {% if service and service.service_type == 'sso' %}selected{% endif %}>SSO (Authentik)</option>
+                <option value="wifi" {% if service and service.service_type == 'wifi' %}selected{% endif %}>Wifi Hotspot</option>
+                <option value="custom" {% if service and service.service_type == 'custom' %}selected{% endif %}>Custom</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="hostname" class="col-sm-2 col-form-label">Hostname</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="hostname" name="hostname" value="{{ service.hostname if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="ip_address" class="col-sm-2 col-form-label">IP Address</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ service.ip_address if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="port" class="col-sm-2 col-form-label">Port</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="port" name="port" value="{{ service.port if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="username" class="col-sm-2 col-form-label">Username</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="username" name="username" value="{{ service.username if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="password" name="password" value="{{ service.password if service else '' }}">
+            <small class="text-muted">Warning: stored in plain text (leave blank for SSH key auth)</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="notes" class="col-sm-2 col-form-label">Notes</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ service.notes if service else '' }}</textarea>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="ssh_command" class="col-sm-2 col-form-label">SSH Command</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="ssh_command" name="ssh_command" value="{{ service.ssh_command if service else '' }}">
+            <small class="text-muted">Command to run via SSH (e.g., 'uname -a', 'hostname')</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            {% if service %}
+                <button type="submit" class="btn btn-primary">Update Service</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Add Service</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}

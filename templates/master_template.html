@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Master Template - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">Master Template Management</h1>
+{% if msg %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+{% if active_template %}
+<div class="glassmorphism p-4 mb-4">
+    <h5 class="text-warning">Active Template: {{ active_template.name }}</h5>
+    <p class="text-muted">{{ active_template.description }}</p>
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>IP Pattern:</strong> <code>{{ active_template.ip_pattern }}</code></p>
+            <p><strong>Hostname Pattern:</strong> <code>{{ active_template.hostname_pattern }}</code></p>
+            <p><strong>LXC CTID Pattern:</strong> <code>{{ active_template.lxc_ctid_pattern or 'Not set' }}</code></p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>MAC Method:</strong> {{ active_template.mac_method }}</p>
+            <p><strong>MAC Vendor Prefix:</strong> <code>{{ active_template.mac_vendor_prefix }}</code></p>
+            <p><strong>Default Username:</strong> <code>{{ active_template.default_username or 'Not set' }}</code></p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{{ url_for('master_template_new_form') }}" class="btn btn-outline-primary">
+        <i class="bi bi-plus-circle me-2"></i> Add Master Template
+    </a>
+</div>
+
+{% if templates %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>IP Pattern</th>
+                <th>Hostname Pattern</th>
+                <th>LXC CTID</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for template in templates %}
+            <tr>
+                <td>{{ template.name }}</td>
+                <td>{{ template.description }}</td>
+                <td><code>{{ template.ip_pattern }}</code></td>
+                <td><code>{{ template.hostname_pattern }}</code></td>
+                <td><code>{{ template.lxc_ctid_pattern or '-' }}</code></td>
+                <td>
+                    {% if template.is_active %}
+                    <span class="status-badge status-config-ok">Active</span>
+                    {% else %}
+                    <span class="status-badge status-not-loaded">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('master_template_edit_form', template_id=template.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        {% if not template.is_active %}
+                        <a href="{{ url_for('master_template_activate', template_id=template.id) }}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-check-circle"></i> Activate
+                        </a>
+                        {% endif %}
+                        <form action="{{ url_for('master_template_delete', template_id=template.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to delete this master template?');">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="glassmorphism p-4 text-center">
+    <h5 class="text-warning">No master templates configured yet</h5>
+    <p class="text-muted">Create a master template to define IP/hostname allocation rules.</p>
+    <a href="{{ url_for('master_template_new_form') }}" class="btn btn-outline-primary mt-3">
+        <i class="bi bi-plus-circle me-2"></i> Add First Template
+    </a>
+</div>
+{% endif %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('[id^="test-ssh-"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const serviceId = this.id.split('-')[2];
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing...';
+            setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-terminal"></i> Test SSH';
+            }, 2000);
+        });
+    });
+    document.querySelectorAll('[id^="test-http-"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const serviceId = this.id.split('-')[2];
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing...';
+            setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-globe"></i> Test HTTP';
+            }, 2000);
+        });
+    });
+    document.querySelectorAll('[id^="run-ssh-"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const serviceId = this.id.split('-')[2];
+            const form = document.getElementById(`run-ssh-form-${serviceId}`);
+            const formData = new FormData(form);
+
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Running...';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Command output:\n${data.output}`);
+                } else {
+                    alert(`Command failed:\n${data.output}`);
+                }
+            })
+            .catch(error => {
+                alert(`Error: ${error}`);
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-cpu"></i> Run CMD';
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

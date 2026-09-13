@@ -1,0 +1,17 @@
+# Docker Compose file for VCPnet Config Tool
+version: '3.8'
+
+services:
+  vcpnet:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ENV=production
+    restart: unless-stopped
+
+# Optional: Add a volume for persistent data
+volumes:
+  data:

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{% if template %}Edit Master Template{% else %}Add Master Template{% endif %} - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">{% if template %}Edit Master Template{% else %}Add Master Template{% endif %}</h1>
+<form method="post" action="{% if template %}{{ url_for(action, template_id=template.id) }}{% else %}{{ url_for(action) }}{% endif %}">
+    <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Template Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" value="{{ template.name if template else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="description" class="col-sm-2 col-form-label">Description</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="description" name="description" rows="3">{{ template.description if template else '' }}</textarea>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="ip_pattern" class="col-sm-2 col-form-label">IP Address Pattern</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="ip_pattern" name="ip_pattern" value="{{ template.ip_pattern if template else '192.168.{client_number}.{device_id}' }}" required>
+            <div class="form-text">
+                Use {client_number} for network number and {device_id} for device identifier.<br>
+                Example: 192.168.{client_number}.{device_id} for network 1 gives 192.168.1.1, 192.168.1.2, etc.
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="hostname_pattern" class="col-sm-2 col-form-label">Hostname Pattern</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="hostname_pattern" name="hostname_pattern" value="{{ template.hostname_pattern if template else '{device_name}-{home_abbrev}' }}" required>
+            <div class="form-text">
+                Use {device_name} for device name and {home_abbrev} for network abbreviation.<br>
+                Example: {device_name}-{home_abbrev} with device name "Router" and abbrev "VCP" gives "Router-VCP"
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="lxc_ctid_pattern" class="col-sm-2 col-form-label">LXC CTID Pattern (Optional)</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="lxc_ctid_pattern" name="lxc_ctid_pattern" value="{{ template.lxc_ctid_pattern if template else '' }}">
+            <div class="form-text">
+                For LXC containers only. Use {client_number} for network number.<br>
+                Example: 10{client_number} for network 1 gives CTID 101
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="port_mappings" class="col-sm-2 col-form-label">Port Mappings (JSON)</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="port_mappings" name="port_mappings" rows="3">{{ template.port_mappings if template else '{}' }}</textarea>
+            <div class="form-text">
+                Define default ports for service types as JSON.<br>
+                Example: {"web_service": 80, "proxy": 8080, "dns": 53, "vpn_controller": 8080, "vpn_gateway": 443}
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="default_username" class="col-sm-2 col-form-label">Default Username</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="default_username" name="default_username" value="{{ template.default_username if template else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="default_password" class="col-sm-2 col-form-label">Default Password</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="default_password" name="default_password" value="{{ template.default_password if template else '' }}">
+            <small class="text-muted">Warning: stored in plain text</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="mac_vendor_prefix" class="col-sm-2 col-form-label">MAC Vendor Prefix</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="mac_vendor_prefix" name="mac_vendor_prefix" value="{{ template.mac_vendor_prefix if template else '00:16:3e' }}" required>
+            <div class="form-text">
+                First 3 octets of MAC address. Use locally administered prefix (00:16:3e, 00:17:3e, etc.)<br>
+                Must be in format XX:XX:XX where XX is hexadecimal
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="mac_method" class="col-sm-2 col-form-label">MAC Generation Method</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="mac_method" name="mac_method" required>
+                <option value="ip_based" {% if template and template.mac_method == 'ip_based' %}selected{% endif %}>IP-Based (Recommended)</option>
+                <option value="hostname_hash" {% if template and template.mac_method == 'hostname_hash' %}selected{% endif %}>Hostname Hash</option>
+                <option value="sequential" {% if template and template.mac_method == 'sequential' %}selected{% endif %}>Sequential</option>
+                <option value="random" {% if template and template.mac_method == 'random' %}selected{% endif %}>Random</option>
+            </select>
+            <div class="form-text">
+                How to generate MAC addresses when not manually specified
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            {% if template %}
+                <button type="submit" class="btn btn-primary">Update Master Template</button>
+                <a href="{{ url_for('master_template') }}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Add Master Template</button>
+                <a href="{{ url_for('master_template') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}

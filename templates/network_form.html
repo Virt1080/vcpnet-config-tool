@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{% if network %}Edit Network{% else %}Add Network{% endif %} - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">{% if network %}Edit Network{% else %}Add Network{% endif %}</h1>
+<form method="post" action="{% if network %}{{ url_for(action, network_id=network.id) }}{% else %}{{ url_for(action) }}{% endif %}">
+    <div class="row mb-3">
+        <label for="client_name" class="col-sm-2 col-form-label">Client Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="client_name" name="client_name" value="{{ network.client_name if network else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="client_number" class="col-sm-2 col-form-label">Client Number</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="client_number" name="client_number" value="{{ network.client_number if network else '' }}" required min="0" max="255">
+            <div class="form-text">
+                Determines subnet: 192.168.X.0/24 where X is this number<br>
+                Must be unique across all networks
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="client_address" class="col-sm-2 col-form-label">Client Address/Location</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="client_address" name="client_address" value="{{ network.client_address if network else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="home_name" class="col-sm-2 col-form-label">Home Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="home_name" name="home_name" value="{{ network.home_name if network else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="home_name_abbrev" class="col-sm-2 col-form-label">Home Name Abbreviation</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="home_name_abbrev" name="home_name_abbrev" value="{{ network.home_name_abbrev if network else '' }}" required>
+            <div class="form-text">
+                Used in hostnames: {device_name}-{home_abbrev}<br>
+                Example: "VCP" for VirtiCORP
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="tailnet_domain" class="col-sm-2 col-form-label">Tailnet Domain</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="tailnet_domain" name="tailnet_domain" value="{{ network.tailnet_domain if network else '' }}" required>
+            <div class="form-text">
+                Used for Tailscale/Headscale domains<br>
+                Example: {{ network.home_name_abbrev if network else '' }}net becomes "VCPnet"
+            </div>
+        </div>
+    </div>
+    <hr class="my-4">
+    <h5 class="text-warning">Feature Flags</h5>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="feature_dns" name="feature_dns" {% if network and network.feature_dns %}checked{% endif %}>
+                <label class="form-check-label" for="feature_dns">
+                    DNS Service (Pi-hole)
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="feature_proxy" name="feature_proxy" {% if network and network.feature_proxy %}checked{% endif %}>
+                <label class="form-check-label" for="feature_proxy">
+                    Proxy Service (Traefik)
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="feature_vpn" name="feature_vpn" {% if network and network.feature_vpn %}checked{% endif %}>
+                <label class="form-check-label" for="feature_vpn">
+                    VPN Services (Headscale/Tailscale)
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="feature_monitoring" name="feature_monitoring" {% if network and network.feature_monitoring %}checked{% endif %}>
+                <label class="form-check-label" for="feature_monitoring">
+                    Monitoring Services
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="feature_backup" name="feature_backup" {% if network and network.feature_backup %}checked{% endif %}>
+                <label class="form-check-label" for="feature_backup">
+                    Backup Services
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3 offset-md-6">
+            <small class="text-muted">Enable/disable automatic configuration for these service types</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="notes" class="col-sm-2 col-form-label">Notes</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ network.notes if network else '' }}</textarea>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            {% if network %}
+                <button type="submit" class="btn btn-primary">Update Network</button>
+                <a href="{{ url_for('networks') }}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Add Network</button>
+                <a href="{{ url_for('networks') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}

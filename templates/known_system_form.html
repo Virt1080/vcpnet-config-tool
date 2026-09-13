@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{% if system %}Edit Known System{% else %}Add Known System{% endif %} - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">{% if system %}Edit Known System{% else %}Add Known System{% endif %}</h1>
+<form method="post" action="{% if system %}{{ url_for(action, system_id=system.id) }}{% else %}{{ url_for(action) }}{% endif %}">
+    <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" value="{{ system.name if system else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="category" class="col-sm-2 col-form-label">Category</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="category" name="category" required>
+                <option value="">-- Select Category --</option>
+                <option value="hardware" {% if system and system.category == 'hardware' %}selected{% endif %}>Hardware</option>
+                <option value="software" {% if system and system.category == 'software' %}selected{% endif %}>Software</option>
+                <option value="firmware" {% if system and system.category == 'firmware' %}selected{% endif %}>Firmware</option>
+                <option value="other" {% if system and system.category == 'other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="vendor" class="col-sm-2 col-form-label">Vendor</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="vendor" name="vendor" value="{{ system.vendor if system else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="model_number" class="col-sm-2 col-form-label">Model Number</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="model_number" name="model_number" value="{{ system.model_number if system else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="default_username" class="col-sm-2 col-form-label">Default Username</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="default_username" name="default_username" value="{{ system.default_username if system else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="default_password" class="col-sm-2 col-form-label">Default Password</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="default_password" name="default_password" value="{{ system.default_password if system else '' }}">
+            <small class="text-muted">For systems with default credentials</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="ssh_port" class="col-sm-2 col-form-label">SSH Port</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="ssh_port" name="ssh_port" value="{{ system.ssh_port if system else 22 }}" min="1" max="65535">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="config_notes" class="col-sm-2 col-form-label">Configuration Notes</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="config_notes" name="config_notes" rows="4">{{ system.config_notes if system else '' }}</textarea>
+            <small class="text-muted">Special notes for configuring this system type</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            {% if system %}
+                <button type="submit" class="btn btn-primary">Update Known System</button>
+                <a href="{{ url_for('known_systems') }}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Add Known System</button>
+                <a href="{{ url_for('known_systems') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}

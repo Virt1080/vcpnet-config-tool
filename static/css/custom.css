@@ -1,0 +1,99 @@
+/* Custom styles for VCPnet Config Tool */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #212529;
+    --card-bg: #ffffff;
+    --card-border: #dee2e6;
+    --navbar-bg: #0d6efd;
+    --navbar-text: #ffffff;
+}
+
+body.dark {
+    --bg-color: #212529;
+    --text-color: #f8f9fa;
+    --card-bg: #2c3034;
+    --card-border: #495057;
+    --navbar-bg: #0d6efd;
+    --navbar-text: #ffffff;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding-top: 60px; /* Offset for fixed navbar */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar {
+    background-color: var(--navbar-bg) !important;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: var(--navbar-text) !important;
+}
+
+.table {
+    --bs-table-bg: var(--card-bg);
+    --bs-table-border-color: var(--card-border);
+    color: var(--text-color);
+}
+
+.table-hover tbody tr:hover {
+    --bs-table-bg: rgba(255,255,255,0.05);
+}
+
+.btn-outline-primary {
+    color: var(--navbar-text);
+    border-color: var(--navbar-text);
+}
+.btn-outline-primary:hover {
+    background-color: var(--navbar-text);
+    color: var(--bg-color);
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: var(--bg-color);
+}
+
+.btn-outline-secondary {
+    color: var(--text-color);
+    border-color: var(--text-color);
+}
+.btn-outline-secondary:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+.btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: var(--bg-color);
+}
+
+.alert {
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-rgb-secondary-bg,0,0,0),0.1) !important;
+    border-color: var(--card-border);
+    color: var(--text-color);
+}
+
+/* Dark mode prefers-color-scheme fallback */
+@media (prefers-color-scheme: dark) {
+    body:not(.dark-force) {
+        --bg-color: #212529;
+        --text-color: #f8f9fa;
+        --card-bg: #2c3034;
+        --card-border: #495057;
+        --navbar-bg: #0d6efd;
+        --navbar-text: #ffffff;
+    }
+}

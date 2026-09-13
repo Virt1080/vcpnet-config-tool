@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block title %}{% if device %}Edit Device{% else %}Add Device{% endif %} - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">{% if device %}Edit Device{% else %}Add Device{% endif %}</h1>
+<form method="post" action="{% if device %}{{ url_for(action, device_id=device.id) }}{% else %}{{ url_for(action) }}{% endif %}">
+    <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Device Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" value="{{ device.name if device else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="network_id" class="col-sm-2 col-form-label">Network</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="network_id" name="network_id" required>
+                <option value="">-- Select Network --</option>
+                {% for network in networks %}
+                <option value="{{ network.id }}" {% if device and device.network_id == network.id %}selected{% endif %}>
+                    {{ network.client_name }} (#{{ network.client_number }}) - {{ network.tailnet_domain }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="service_type" class="col-sm-2 col-form-label">Device Type</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="service_type" name="service_type" required>
+                <option value="">-- Select Type --</option>
+                <option value="router" {% if device and device.service_type == 'router' %}selected{% endif %}>Router</option>
+                <option value="switch" {% if device and device.service_type == 'switch' %}selected{% endif %}>Switch</option>
+                <option value="web_service" {% if device and device.service_type == 'web_service' %}selected{% endif %}>Web Service</option>
+                <option value="lxc" {% if device and device.service_type == 'lxc' %}selected{% endif %}>LXC Container</option>
+                <option value="pi_hole" {% if device and device.service_type == 'pi_hole' %}selected{% endif %}>Pi-hole</option>
+                <option value="openwrt" {% if device and device.service_type == 'openwrt' %}selected{% endif %}>OpenWrt</option>
+                <option value="vpn" {% if device and device.service_type == 'vpn' %}selected{% endif %}>VPN Client</option>
+                <option value="proxy" {% if device and device.service_type == 'proxy' %}selected{% endif %}>Proxy Server</option>
+                <option value="sso" {% if device and device.service_type == 'sso' %}selected{% endif %}>SSO (Authentik)</option>
+                <option value="wifi" {% if device and device.service_type == 'wifi' %}selected{% endif %}>Wifi Hotspot</option>
+                <option value="dns" {% if device and device.service_type == 'dns' %}selected{% endif %}>DNS Server</option>
+                <option value="dhcp" {% if device and device.service_type == 'dhcp' %}selected{% endif %}>DHCP Server</option>
+                <option value="monitoring" {% if device and device.service_type == 'monitoring' %}selected{% endif %}>Monitoring</option>
+                <option value="backup" {% if device and device.service_type == 'backup' %}selected{% endif %}>Backup</option>
+                <option value="database" {% if device and device.service_type == 'database' %}selected{% endif %}>Database</option>
+                <option value="mail" {% if device and device.service_type == 'mail' %}selected{% endif %}>Mail Server</option>
+                <option value="storage" {% if device and device.service_type == 'storage' %}selected{% endif %}>Storage</option>
+                <option value="custom" {% if device and device.service_type == 'custom' %}selected{% endif %}>Custom</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="known_system_id" class="col-sm-2 col-form-label">Known System (Template)</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="known_system_id" name="known_system_id">
+                <option value="">-- Select Template (Optional) --</option>
+                {% for system in known_systems %}
+                <option value="{{ system.id }}" {% if device and device.known_system_id == system.id %}selected{% endif %}>
+                    {{ system.name }} ({{ system.category }}{% if system.vendor %} - {{ system.vendor }}{% endif %})
+                </option>
+                {% endfor %}
+            </select>
+            <small class="text-muted">Select a known system to pre-fill default values</small>
+        </div>
+    </div>
+    <div class="row mb-3" id="hostname-group">
+        <label for="hostname" class="col-sm-2 col-form-label">Hostname</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="hostname" name="hostname" value="{{ device.hostname if device else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3" id="ip-address-group">
+        <label for="ip_address" class="col-sm-2 col-form-label">IP Address</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ device.ip_address if device else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3" id="mac-address-group">
+        <label for="mac_address" class="col-sm-2 col-form-label">MAC Address</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="mac_address" name="mac_address" value="{{ device.mac_address if device else '' }}" placeholder="Auto-generated if empty">
+            <div class="form-text">
+                Leave blank to auto-generate based on master template rules<br>
+                Format: XX:XX:XX:XX:XX:XX (hexadecimal)
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3" id="lxctid-group">
+        <label for="lxctid" class="col-sm-2 col-form-label">LXC CTID</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="lxctid" name="lxctid" value="{{ device.lxc_ctid if device else '' }}" min="1" max="999">
+            <div class="form-text">
+                For LXC containers only. Leave blank if not an LXC.
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="port" class="col-sm-2 col-form-label">Port</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="port" name="port" value="{{ device.port if device else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="username" class="col-sm-2 col-form-label">Username</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="username" name="username" value="{{ device.username if device else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="password" name="password" value="{{ device.password if device else '' }}">
+            <small class="text-muted">Warning: stored in plain text (leave blank for SSH key auth)</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="notes" class="col-sm-2 col-form-label">Notes</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ device.notes if device else '' }}</textarea>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            {% if device %}
+                <button type="submit" class="btn btn-primary">Update Device</button>
+                <a href="{{ url_for('devices') }}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Add Device</button>
+                <a href="{{ url_for('devices') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-fill hostname and IP when network is selected
+        const networkSelect = document.getElementById('network_id');
+        const knownSystemSelect = document.getElementById('known_system_id');
+        const hostnameInput = document.getElementById('hostname');
+        const ipInput = document.getElementById('ip_address');
+        const macInput = document.getElementById('mac_address');
+        const lxctidInput = document.getElementById('lxctid');
+        const serviceTypeSelect = document.getElementById('service_type');
+
+        // Template data would normally come from server, but we'll use placeholders
+        // In a real implementation, this would be done via AJAX to get template data
+
+        if (networkSelect) {
+            networkSelect.addEventListener('change', function() {
+                const networkId = this.value;
+                if (networkId) {
+                    // Find selected network option to get details
+                    const selectedOption = this.options[this.selectedIndex];
+                    const networkName = selectedOption.text.split(' (')[0];
+                    // In a real app, we'd fetch the network details from API
+                    // For now, we'll just show that this would trigger template-based filling
+                    console.log('Network selected:', networkId);
+                    // This would typically trigger an API call to get network/master template data
+                }
+            });
+        }
+
+        if (knownSystemSelect) {
+            knownSystemSelect.addEventListener('change', function() {
+                const systemId = this.value;
+                if (systemId) {
+                    // Find selected system option
+                    const selectedOption = this.options[this.selectedIndex];
+                    console.log('Known system selected:', systemId);
+                    // This would typically trigger an API call to get system details
+                    // and auto-fill username, password, etc.
+                }
+            });
+        }
+
+        // Auto-generate MAC button would go here in a full implementation
+    });
+
+    // Existing test scripts from other templates
+    document.querySelectorAll('[id^="test-ssh-"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const deviceId = this.id.split('-')[2];
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing...';
+            setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-terminal"></i> Test SSH';
+            }, 2000);
+        });
+    });
+    document.querySelectorAll('[id^="test-http-"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const deviceId = this.id.split('-')[2];
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Testing...';
+            setTimeout(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-globe"></i> Test HTTP';
+            }, 2000);
+        });
+    });
+    document.querySelectorAll('[id^="run-ssh-"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const deviceId = this.id.split('-')[2];
+            const form = document.getElementById(`run-ssh-form-${deviceId}`);
+            const formData = new FormData(form);
+
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Running...';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Command output:\n${data.output}`);
+                } else {
+                    alert(`Command failed:\n${data.output}`);
+                }
+            })
+            .catch(error => {
+                alert(`Error: ${error}`);
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="bi bi-cpu"></i> Run CMD';
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

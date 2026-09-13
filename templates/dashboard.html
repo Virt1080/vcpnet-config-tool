@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">VCPnet Network Dashboard</h1>
+{% if msg %}
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<!-- Stats Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="glassmorphism p-3">
+            <h5 class="text-warning mb-3">Networks</h5>
+            <h2 class="mb-0">{{ stats.networks }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glassmorphism p-3">
+            <h5 class="text-warning mb-3">Devices</h5>
+            <h2 class="mb-0">{{ stats.devices }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glassmorphism p-3">
+            <h5 class="text-warning mb-3">Mgmt Services</h5>
+            <h2 class="mb-0">{{ stats.management_services }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glassmorphism p-3">
+            <h5 class="text-warning mb-3">Known Systems</h5>
+            <h2 class="mb-0">{{ stats.known_systems }}</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glassmorphism p-3">
+            <h5 class="text-warning mb-3">Quick Actions</h5>
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <a href="{{ url_for('network_new_form') }}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-circle me-2"></i>New Network
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('device_new_form') }}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-circle me-2"></i>Add Device
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('management_service_new_form') }}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-circle me-2"></i>Mgmt Service
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('known_system_new_form') }}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-circle me-2"></i>Known System
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ url_for('master_template_new_form') }}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-plus-circle me-2"></i>Master Template
+                    </a>
+                </div>
+                <div class="col-md-2">
+                    <a href="#" class="btn btn-outline-primary w-100" onclick="showHelp()">
+                        <i class="bi bi-question-circle me-2"></i>Help
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="glassmorphism">
+            <h5 class="text-warning mb-3">Recent Devices</h5>
+            {% if recent_devices %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Hostname/IP</th>
+                            <th>Type</th>
+                            <th>Network</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for device in recent_devices %}
+                        <tr>
+                            <td>{{ device.name }}</td>
+                            <td>
+                                {% if device.hostname %}{{ device.hostname }}<br>
+                                <small class="text-muted">{{ device.ip_address }}</small>
+                                {% else %}{{ device.ip_address }}
+                                {% endif %}
+                            </td>
+                            <td>{{ device.service_type }}</td>
+                            <td>{{ device.network_name }}</td>
+                            <td>
+                                <span class="status-badge status-{{ device.config_status | replace('_', '-') }}">{{ device.config_status | replace('_', ' ') | title }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">No devices found. Add your first device!</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glassmorphism">
+            <h5 class="text-warning mb-3">Network Overview</h5>
+            {% if networks %}
+            <div class="list-group">
+                {% for network in networks %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ network.client_name }}<span class="badge bg-warning rounded-pill">#{{ network.client_number }}</span></h6>
+                        <small>{{ network.device_count }} devices</small>
+                    </div>
+                    <p class="mb-1">{{ network.home_name_abbrev }}<span class="text-muted"> ({{ network.tailnet_domain }})</span></p>
+                    <small class="text-muted">{{ network.client_address }}</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No networks configured.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    function showHelp() {
+        alert('VCPnet Config Tool Help:\\n\\n' +
+              '• Dashboard shows overview of your network infrastructure\\n' +
+              '• Use the navigation bar to manage different aspects\\n' +
+              '• Start by creating Networks, then add Devices to them\\n' +
+              '• Configure Management Services for your core infrastructure\\n' +
+              '• Use Known Systems as templates for hardware/software\\n' +
+              '• Define Master Template for IP/hostname allocation rules\\n\\n' +
+              'Tip: MAC addresses are auto-generated based on your rules!');
+    }
+
+    // Handle any dynamic elements if needed
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add any initialization code here
+    });
+</script>
+{% endblock %}

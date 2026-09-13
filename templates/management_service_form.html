@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{% if service %}Edit Management Service{% else %}Add Management Service{% endif %} - VCPnet Config Tool{% endblock %}
+{% block content %}
+<h1 class="mb-4">{% if service %}Edit Management Service{% else %}Add Management Service{% endif %}</h1>
+<form method="post" action="{% if service %}{{ url_for(action, service_id=service.id) }}{% else %}{{ url_for(action) }}{% endif %}">
+    <div class="row mb-3">
+        <label for="name" class="col-sm-2 col-form-label">Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" value="{{ service.name if service else '' }}" required>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="service_type" class="col-sm-2 col-form-label">Service Type</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="service_type" name="service_type" required>
+                <option value="">-- Select Type --</option>
+                <option value="dns" {% if service and service.service_type == 'dns' %}selected{% endif %}>DNS Server</option>
+                <option value="proxy" {% if service and service.service_type == 'proxy' %}selected{% endif %}>Reverse Proxy</option>
+                <option value="vpn_controller" {% if service and service.service_type == 'vpn_controller' %}selected{% endif %}>VPN Controller (Headscale)</option>
+                <option value="vpn_gateway" {% if service and service.service_type == 'vpn_gateway' %}selected{% endif %}>VPN Gateway (Tailscale)</option>
+                <option value="sso" {% if service and service.service_type == 'sso' %}selected{% endif %}>SSO/Auth</option>
+                <option value="monitoring" {% if service and service.service_type == 'monitoring' %}selected{% endif %}>Monitoring</option>
+                <option value="backup" {% if service and service.service_type == 'backup' %}selected{% endif %}>Backup</option>
+                <option value="database" {% if service and service.service_type == 'database' %}selected{% endif %}>Database</option>
+                <option value="mail" {% if service and service.service_type == 'mail' %}selected{% endif %}>Mail Server</option>
+                <option value="storage" {% if service and service.service_type == 'storage' %}selected{% endif %}>Storage</option>
+                <option value="web_service" {% if service and service.service_type == 'web_service' %}selected{% endif %}>Web Service</option>
+                <option value="other" {% if service and service.service_type == 'other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="hostname" class="col-sm-2 col-form-label">Hostname</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="hostname" name="hostname" value="{{ service.hostname if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="ip_address" class="col-sm-2 col-form-label">IP Address</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="ip_address" name="ip_address" value="{{ service.ip_address if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="port" class="col-sm-2 col-form-label">Port</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="port" name="port" value="{{ service.port if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="username" class="col-sm-2 col-form-label">Username</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="username" name="username" value="{{ service.username if service else '' }}">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="password" class="col-sm-2 col-form-label">Password</label>
+        <div class="col-sm-10">
+            <input type="password" class="form-control" id="password" name="password" value="{{ service.password if service else '' }}">
+            <small class="text-muted">Warning: stored in plain text (leave blank for SSH key auth)</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="api_endpoint" class="col-sm-2 col-form-label">API Endpoint</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="api_endpoint" name="api_endpoint" value="{{ service.api_endpoint if service else '' }}">
+            <small class="text-muted">For API-based configuration (e.g., http://host:port/api)</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="ssh_command" class="col-sm-2 col-form-label">SSH Command</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="ssh_command" name="ssh_command" value="{{ service.ssh_command if service else '' }}">
+            <small class="text-muted">Command to run via SSH for testing (e.g., 'systemctl status service')</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="config_file_path" class="col-sm-2 col-form-label">Config File Path</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="config_file_path" name="config_file_path" value="{{ service.config_file_path if service else '' }}">
+            <small class="text-muted">Path to config file on device (e.g., /etc/pihole/setupVars.conf)</small>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="config_method" class="col-sm-2 col-form-label">Config Method</label>
+        <div class="col-sm-10">
+            <select class="form-select" id="config_method" name="config_method">
+                <option value="ssh" {% if service and service.config_method == 'ssh' %}selected{% endif %}>SSH</option>
+                <option value="api" {% if service and service.config_method == 'api' %}selected{% endif %}>API</option>
+                <option value="direct_file" {% if service and service.config_method == 'direct_file' %}selected{% endif %}>Direct File Edit</option>
+                <option value="manual" {% if service and service.config_method == 'manual' %}selected{% endif %}>Manual</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="notes" class="col-sm-2 col-form-label">Notes</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ service.notes if service else '' }}</textarea>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            {% if service %}
+                <button type="submit" class="btn btn-primary">Update Management Service</button>
+                <a href="{{ url_for('management_services') }}" class="btn btn-secondary">Cancel</a>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Add Management Service</button>
+                <a href="{{ url_for('management_services') }}" class="btn btn-secondary">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endblock %}
