@@ -36,7 +36,7 @@ fi
 
 # Set up the application inside the container
 echo "Setting up VCPnet Config Tool inside container..."
-pct exec $LXC_ID -- bash -c '
+pct exec $LXC_ID -- bash -c "
   # Update package list
   echo \"Updating package list...\"
   apt-get update >/dev/null 2>&1
@@ -112,4 +112,4 @@ EOF
 systemctl daemon-reload
 systemctl restart container-getty@tty1.service
 printf "\033[0;32m[OK]\033[0m Auto-login configured for console\n"
-'
+"
