@@ -6,7 +6,7 @@ LXC_ID=168
 LXC_HOSTNAME="VCPTools"
 TEMPLATE="local:vztmpl/ubuntu-24.04-standard_24.04-2_amd64.tar.zst"  # Template name (let pct find it in available storages)
 MAC_ADDRESS="32:36:C3:1A:A8:40"
-REPO_URL="https://github.com/Virt1080/VCP-config-tool.git"
+REPO_URL="https://github.com/Virt1080/vcpnet-config-tool.git"
 
 # Create the LXC container using local-zfs storage for the disk
 echo "Creating LXC $LXC_ID with template $TEMPLATE on storage local-zfs..."
