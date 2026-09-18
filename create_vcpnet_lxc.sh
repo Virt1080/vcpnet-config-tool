@@ -112,6 +112,4 @@ EOF
 systemctl daemon-reload
 systemctl restart container-getty@tty1.service
 msg_ok "Auto-login configured for console"
-
-EOF
-\\
+"
