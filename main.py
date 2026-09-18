@@ -1,3 +1,31 @@
+"""
+Main application entrypoint for VCPnet Config Tool
+"""
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+from sqlmodel import Session
+
+from database import engine
+from models import *
+from crud import *
+from mac_utils import generate_mac_address
+
+app = FastAPI(title="VCPnet Config Tool", version="1.0.0")
+
+
+@app.on_event("startup")
+def on_startup():
+    """Create database tables on startup"""
+    from database import create_db_and_tables
+    create_db_and_tables()
+
+
+@app.get("/")
+def root():
+    """Root endpoint"""
+    return {"message": "VCPnet Config Tool API", "version": "1.0.0"}
+
+
 @app.get("/api/device/{device_id}/calculate-mac")
 def api_calculate_mac(device_id: int):
     """Calculate MAC address for a device based on master template rules"""
@@ -21,3 +49,7 @@ def api_calculate_mac(device_id: int):
         )
 
         return JSONResponse(content={"mac_address": mac_address})
+
+
+# Additional API routes would go here for CRUD operations on various entities
+# These would typically be imported from routers or defined directly

@@ -23,8 +23,8 @@ share/python-wheels/
 *.egg
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+#  Usually these files are written by a python script from a temporary
+#  directory before injection.
 *.manifest
 *.spec
 
@@ -45,8 +45,6 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-
-# Environments
 .env
 .venv
 env/
@@ -62,21 +60,26 @@ venv.bak/
 *.swo
 *~
 
-# MySQL
-*.db
-
-# SQLite
-*.sqlite
-*.sqlite3
-*.db
-
-# Logs
-logs
-*.log
-
 # OS
 .DS_Store
 Thumbs.db
 
+# Logs
+*.log
+server.log
+
+# Database
+*.sqlite3
+*.db
+
+# Environment variables
+.env
+.env.*
+!example.env
+
+# SQLite
+*.sqlite3
+
 # VCPnet specific
-vcpnet.db
+.vcpnet/
+__pycache__/
