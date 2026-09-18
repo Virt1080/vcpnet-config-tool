@@ -100,7 +100,7 @@ EO_SERVICE
   systemctl start vcpnet
   
 # Setup auto-login for LXC console
-echo -e "\033[0;34m[INFO]\033[0m Setting up auto-login for console"
+printf "\033[0;34m[INFO]\033[0m Setting up auto-login for console\n"
 # Create override directory for container-getty service
 mkdir -p /etc/systemd/system/container-getty@tty1.service.d
 cat <<EOF >/etc/systemd/system/container-getty@tty1.service.d/override.conf
@@ -111,5 +111,5 @@ EOF
 # Reload systemd and restart the getty service
 systemctl daemon-reload
 systemctl restart container-getty@tty1.service
-echo -e "\033[0;32m[OK]\033[0m Auto-login configured for console"
+printf "\033[0;32m[OK]\033[0m Auto-login configured for console\n"
 "
