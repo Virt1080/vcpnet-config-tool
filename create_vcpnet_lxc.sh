@@ -36,7 +36,7 @@ fi
 
 # Set up the application inside the container
 echo "Setting up VCPnet Config Tool inside container..."
-pct exec $LXC_ID -- bash -c '
+pct exec $LXC_ID -- env REPO_URL="$REPO_URL" bash -c '
   # Update package list
   echo \"Updating package list...\"
   apt-get update >/dev/null 2>&1
