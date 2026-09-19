@@ -51,7 +51,7 @@ pct exec $LXC_ID -- bash -c '
   
   # Clone the repository
   echo "Cloning repository..."
-  if ! git clone $REPO_URL . ; then
+  if ! git clone  . ; then
     echo "Error: Failed to clone repository"
     exit 1
   fi
