@@ -102,15 +102,15 @@ EO_SERVICE
 # Setup auto-login for LXC console
 printf "\033[0;34m[INFO]\033[0m Setting up auto-login for console\n"
 # Create override directory for container-getty service
-mkdir -p /etc/systemd/system/container-getty@tty1.service.d
-cat <<'EOF' >/etc/systemd/system/container-getty@tty1.service.d/override.conf
+GETTY_OVERRIDE="/etc/systemd/system/container-getty@1.service.d/override.conf"
+mkdir -p "$(dirname "$GETTY_OVERRIDE")"
+cat <<EOF >"$GETTY_OVERRIDE"
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty -a root -o '-p -- \\u' --noclear - \$TERM
+ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 \$TERM
 EOF
 # Reload systemd and restart the getty service
 systemctl daemon-reload
-systemctl restart container-getty@tty1.service
+systemctl restart "$(basename "$(dirname "$GETTY_OVERRIDE")" | sed 's/\.d//')"
 printf "\033[0;32m[OK]\033[0m Auto-login configured for console\n"
-'
 # test
