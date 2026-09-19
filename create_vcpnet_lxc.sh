@@ -63,7 +63,7 @@ pct exec $LXC_ID -- bash -c '
   pip install -r requirements.txt >/dev/null 2>&1
   
   # Create update script
-  cat > /usr/local/bin/update << 'EO_UPDATE'
+  cat > /usr/local/bin/update << '\''EO_UPDATE'\''
 #!/bin/bash
 cd /opt/vcpnet-config-tool
 source venv/bin/activate
@@ -76,7 +76,7 @@ EO_UPDATE
   chmod +x /usr/local/bin/update
   
   # Create systemd service file
-  cat > /etc/systemd/system/vcpnet.service << 'EO_SERVICE'
+  cat > /etc/systemd/system/vcpnet.service << '\''EO_SERVICE'\''
 [Unit]
 Description=VCPnet Config Tool
 After=network.target
@@ -111,6 +111,7 @@ ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,3840
 EOF
 # Reload systemd and restart the getty service
 systemctl daemon-reload
-systemctl restart "$(basename "$(dirname "$GETTY_OVERRIDE")" | sed 's/\.d//')"
+systemctl restart "$(basename "$(dirname "$GETTY_OVERRIDE")" | sed '\''s/\.d//'\'')"
 printf "\033[0;32m[OK]\033[0m Auto-login configured for console\n"
 # test
+'
